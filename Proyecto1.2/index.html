@@ -1,0 +1,120 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Proyecto 1.2.- Bastionado de DEBIAN</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="Proyecto1.2"
+                  title="Proyecto 1.2.- Bastionado de DEBIAN"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Introducción" duration="0">
+        <p>El fortalecimiento del arranque en sistemas Debian es fundamental para garantizar la seguridad desde el inicio del sistema operativo. Un arranque seguro previene alteraciones no autorizadas y limita el acceso a usuarios no deseados, lo cual mejora la integridad del sistema. Este trabajo describe configuraciones clave de seguridad en el gestor de arranque GRUB, tales como la creación de contraseñas para el arranque, la ocultación del menú de inicio y la realización de copias de seguridad de la configuración de arranque. Además, se exploran medidas adicionales, como el cifrado completo del disco y la autenticación de arranque a través de la BIOS/UEFI, para proteger los datos del sistema antes de la carga total del sistema operativo. La combinación de estas prácticas refuerza la seguridad en Debian, protegiendo la información y evitando accesos y modificaciones no autorizados.</p>
+<p class="image-container"><img alt="Portada" src="img\\6f22625666f7cf1c.webp"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Configurar la Contraseña de arranque en GRUB" duration="0">
+        <p>El primer paso para asegurar el arranque de Debian es configurar una contraseña en el gestor de arranque GRUB (Grand Unified Bootloader). Al hacerlo, el sistema bloqueará a usuarios no autorizados, evitando que puedan cambiar las opciones de arranque o cargar otro sistema operativo sin autorización.</p>
+<p>Para ello abre el terminal y genera una contraseña cifrada para GRUB ejecutando el comando: grub-mkpasswd-pbkdf2. Ingresa una contraseña segura y copia el hash generado.</p>
+<p class="image-container"><img alt="Contraseña GRUB" src="img\\b9d069c11ff6dc20.png"></p>
+<p>En este paso abre el archivo de configuración de GRUB con el comando nano /etc/grub.d/40_custom .</p>
+<p>Una vez dentro escribimos las siguientes lineas:</p>
+<p>set superusers=&#34;nombre_usuario&#34; password_pbkdf2 nombre_usuario hash_generado</p>
+<p class="image-container"><img alt="Archivo GRUB" src="img\\83acc17382fad3f4.png"></p>
+<p>Guardamos los cambios y ejecutamos el comando: update-grub</p>
+<p class="image-container"><img alt="Update GRUB" src="img\\ed2c7d0bc3a98a93.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Ocultar el Menú de Arranque GRUB" duration="0">
+        <p>Para incrementar la seguridad, se puede ocultar el menú de arranque de GRUB, haciendo que el sistema inicie directamente en el sistema operativo predeterminado sin mostrar opciones a usuarios no autorizados. Esto impide intentos de acceder al sistema mediante otras opciones de arranque o de realizar modificaciones sin autorización.</p>
+<p>En este paso accederemos al archivo de configuración de GRUB con el comando nano /etc/default/grub .</p>
+<p>Modificaremos las siguientes líneas y si no aparecen las añadiremos:</p>
+<p>GRUB_TIMEOUT=0 GRUB_HIDDEN_TIMEOUT=0</p>
+<p class="image-container"><img alt="2 Archivo GRUB" src="img\\6e8fadd069e0457c.png"></p>
+<p>Guardaremos los cambios y ejecutamos el comando update-grub para actualizar</p>
+<p class="image-container"><img alt="2 Update GRUB" src="img\\6e8fadd069e0457c.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Copia de seguridad de la configuración de arranque" duration="0">
+        <p>La configuración de GRUB es fundamental, y cualquier error puede evitar que el sistema inicie adecuadamente. Por eso, es crucial crear una copia de seguridad de los archivos de configuración de arranque antes de hacer cambios significativos.</p>
+<p>Para crear una copia de backup de la configuración actual, usaremos el siguiente comando:</p>
+<p>cp /boot/grub/grub.cfg /ruta_donde_almacenar_la_copias</p>
+<p class="image-container"><img alt="Backup GRUB" src="img\\d8f7a13cd592ca36.png"></p>
+<p>Nota: Guarda la copia de seguridad de la configuración de GRUB en un lugar seguro, como un dispositivo de almacenamiento externo (USB, disco duro) o en una ubicación remota cifrada. Esto asegurará que esté accesible en caso de errores de arranque, facilitando la restauración de la configuración y permitiendo recuperar el sistema de forma rápida y segura si surgen problemas.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Otras opciones de seguridad" duration="0">
+        <p><em>Desabilitar el acceso por ssh para el root</em></p>
+<p>Edita la configuración de SSH en /etc/ssh/sshd_config y asegúrate de tener estas opciones:</p>
+<p>PermitRootLogin no PasswordAuthentication no</p>
+<p class="image-container"><img alt="Backup GRUB" src="img\\c1881a448b514a70.png"></p>
+<p>Nota: Usa autenticación con llaves SSH para evitar ataques de fuerza bruta.</p>
+<p><em>Proceso para habilitar el cifrado en una nueva instalación de Debian:</em></p>
+<p>Durante la instalación de Debian, selecciona la opción &#34;guiado: usar todo el disco y configurar el cifrado LVM&#34;. Cuando el asistente lo indique, establece una clave de cifrado segura. Esta clave será solicitada cada vez que inicies el sistema.</p>
+<p><em>Procedimiento para activar el cifrado en un sistema Debian existente:</em></p>
+<p>Si ya tienes Debian instalado, elige la partición que deseas cifrar (por ejemplo, /dev/sda5).</p>
+<p>En la terminal, emplea cryptsetup para activar el cifrado en esa partición:</p>
+<p>Para ello debemos instalar cryptsetup, ejecutamos: apt install cryptsetup</p>
+<p class="image-container"><img alt="Install cryptsetup" src="img\\133da9e33895d97e.png"></p>
+<p>Una vez instalado aplicamos el siguiente comando para cifrar la partición deseada:</p>
+<p>cryptsetup luksFormat /dev/sda</p>
+<p class="image-container"><img alt="Crypt" src="img\\dd3327784ac8e5ee.png"></p>
+<p>Nota: confirma escribiendo &#34;YES&#34; y establece una contraseña segura).</p>
+<p>Abre la partición cifrada y asigna un nombre, como mydata:</p>
+<p>cryptsetup open /dev/sda my_data</p>
+<p>Crea un sistema de archivos en la partición:</p>
+<p>mkfs.ext4 /dev/mapper/my_data</p>
+<p>Configura el Montaje Automático en /etc/crypttab y /etc/fstab Para que el sistema monte automáticamente la partición cifrada en cada arranque, sigue estos pasos:</p>
+<p>Edita /etc/crypttab para indicar el mapeo de la partición cifrada:</p>
+<p>sudo nano /etc/crypttab</p>
+<p>Agrega la línea:</p>
+<p>my_data /dev/sda none luks</p>
+<p class="image-container"><img alt="Archivo crypttab" src="img\\b145ab847a36a56e.png"></p>
+<p>Edita /etc/fstab para montar la partición en /home al iniciar:</p>
+<p>sudo nano /etc/fstab</p>
+<p>Agrega la siguiente línea al archivo:</p>
+<p>/dev/mapper/home_crypt /home ext4 defaults 0 2</p>
+<p class="image-container"><img alt="Archivo fstab" src="img\\ee58a16b5d68b001.png"></p>
+<p>Para asegurarte de que todo está configurado correctamente, reinicia el sistema</p>
+<p>Durante el arranque, se te pedirá la contraseña de cifrado para desbloquear la partición</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
